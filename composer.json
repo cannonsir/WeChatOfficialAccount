@@ -1,0 +1,30 @@
+{
+    "name": "gtd/WeChatOfficialAccount",
+    "description": "A Laravel Vue Admin Extend",
+    "keywords": [
+        "laravel",
+        "vue",
+        "admin"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gtd\\WeChatOfficialAccount\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Gtd\\WeChatOfficialAccount\\ExtendServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
