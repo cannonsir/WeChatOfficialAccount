@@ -16,7 +16,7 @@ $router->group([
     $router->resource('wechat-official-accounts', 'ExtendController');
 
     $router->prefix('WeChatOfficialAccount')->group(function ($router) {
-        $router->prefix('accounts/{account}')->group(function ($router) {
+        $router->prefix('accounts/{wx_account}')->group(function ($router) {
             $router->get('users', 'UserController@index');
             $router->put('users', 'UserController@sync');
 
@@ -27,6 +27,7 @@ $router->group([
 
             $router->apiResources([
                 'user_tags' => 'UserTagController',
+                'materials' => 'MaterialController'
             ]);
         });
 

@@ -51,16 +51,19 @@
             </el-menu-item>
           </el-menu>
         </div>
-        <router-view class="children-route-view" v-if="account.id" :account="account" />
+        <router-view class="children-route-view" v-if="account.id" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import http from '../../libs/http'
-import { mapMutations } from 'vuex'
 import { show } from '../../api/account'
+import Vue from 'vue'
+
+const observable = Vue.observable({
+  account: {}
+})
 
 export default {
   name: 'AccountLayout',
@@ -70,11 +73,10 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      account: {}
-    }
+  provide() {
+    return { account: observable.account }
   },
+  data: () => observable,
   computed: {
     menus() {
       return [
@@ -106,14 +108,13 @@ export default {
       ]
     }
   },
-  created() {
-    this.SET_MENU_IS_COLLAPSE(true)
-  },
   async beforeRouteEnter(to, from, next) {
-    const id = to.params.id
     try {
-      const { data } = await show(id)
-      next(vm => (vm.account = data))
+      const { data } = await show(to.params.id)
+
+      observable.account = data
+
+      next()
     } catch (e) {
       next(false)
     }
@@ -127,10 +128,9 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['SET_MENU_IS_COLLAPSE']),
     async fetchAccount(id = null) {
       const { data } = await show(id || this.$route.params.id)
-      this.account = data
+      observable.account = data
     },
     handleClickMenu(menu) {
       this.$route.name !== menu.routeName && this.$router.push({ name: menu.routeName })

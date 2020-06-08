@@ -2,6 +2,8 @@
 
 namespace Gtd\WeChatOfficialAccount;
 
+use Gtd\WeChatOfficialAccount\Models\Account;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use SmallRuralDog\Admin\Admin;
 
@@ -15,6 +17,9 @@ class ExtendServiceProvider extends ServiceProvider
     public function boot()
     {
         Admin::script('WeChatOfficialAccount', __DIR__.'/../dist/js/extend.js');
+
+        // 路由显示绑定
+        Route::model('wx_account', Account::class);
     }
 
     /**

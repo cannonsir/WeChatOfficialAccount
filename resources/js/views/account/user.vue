@@ -53,12 +53,7 @@ import { denders, sources } from '../../enums/user'
 
 export default {
   name: 'User',
-  props: {
-    account: {
-      type: Object,
-      required: true
-    }
-  },
+  inject: ['account'],
   data() {
     return {
       users: [],

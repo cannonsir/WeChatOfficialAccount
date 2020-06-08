@@ -17,12 +17,7 @@ import { update, destroy } from '../../api/account'
 export default {
   name: 'Setting',
   components: { AccountSheet },
-  props: {
-    account: {
-      type: Object,
-      required: true
-    }
-  },
+  inject: ['account'],
   methods: {
     async handleUpdateAccount(data) {
       try {

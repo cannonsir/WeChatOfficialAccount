@@ -28,12 +28,7 @@ import { store } from '../../api/menu'
 export default {
   name: 'Menu',
   components: { WeChatMenuEditor },
-  props: {
-    account: {
-      type: Object,
-      required: true
-    }
-  },
+  inject: ['account'],
   data() {
     return {
       menu: {},

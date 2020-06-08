@@ -7,12 +7,7 @@
 <script>
 export default {
   name: 'AccountIndex',
-  props: {
-    account: {
-      type: Object,
-      required: true
-    }
-  }
+  inject: ['account']
 }
 </script>
 
