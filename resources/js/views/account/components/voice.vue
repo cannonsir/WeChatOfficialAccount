@@ -9,10 +9,11 @@
           :before-remove="beforeRemove"
           :limit="1"
           :on-success="handleSuccess"
+          :on-error="handleError"
           :file-list="fileList"
         >
           <el-button size="small" type="primary">点击上传</el-button>
-          <div slot="tip" class="el-upload__tip">只能上传mp3</div>
+          <div slot="tip" class="el-upload__tip">只能上传mp3, 且不超过10M</div>
         </el-upload>
       </el-form-item>
     </el-form>
@@ -57,6 +58,9 @@ export default {
     },
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    handleError() {
+      this.$message.error('上传失败,请检查文件格式或大小')
     }
   }
 };

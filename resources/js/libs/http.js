@@ -3,7 +3,7 @@ import config from '../config'
 import { Message } from 'element-ui'
 
 const httpRequest = axios.create({
-  timeout: 5000,
+  timeout: 15000,
   baseURL: config.apiUrl
 })
 

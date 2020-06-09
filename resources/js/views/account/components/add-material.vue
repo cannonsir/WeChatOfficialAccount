@@ -37,7 +37,7 @@ export default {
     Voice,
     News
   },
-  reject: ['account'],
+  inject: ['account'],
   props: {
     params: {
       type: Object,
@@ -64,7 +64,7 @@ export default {
     closeDialog(refresh = false) {
       this.$emit("close-dialog", refresh);
     },
-    handleAdd() {
+    async handleAdd() {
       let data = {
         type: this.params.type,
         ...this.data
@@ -76,15 +76,19 @@ export default {
         loadingInstance.close();
       });
 
-      store(this.account.id, data)
-        .then(res => {
-          this.$message.success("添加成功");
-          this.closeDialog(true);
-        })
-        .catch(err => {
-          console.log(err);
-          this.$message.error("创建失败，请重试");
-        });
+      const loading = this.$loading()
+
+      try {
+        await store(this.account.id, data)
+
+        this.$message.success("添加成功");
+        this.closeDialog(true);
+      } catch(e) {
+        console.log(e);
+        this.$message.error("创建失败，请重试");
+      } finally {
+        loading.close()
+      }
     },
     onDataChange(data) {
       this.data = data;

@@ -72,12 +72,11 @@ export default {
         url: this.imageUrl,
         type: "thumb"
       })
-        .then(res => {
-          this.form.thumb_media_id = res.data.media_id;
+        .then(data => {
+          this.form.thumb_media_id = data.media_id;
           this.$message.success("封面上传成功");
         })
         .catch(err => {
-          console.log(err);
           this.$message.error("封面上传失败,请重试");
           this.media_id = "";
         });
