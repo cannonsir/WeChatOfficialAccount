@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import _ from 'lodash'
+import { FormItem, Input } from 'element-ui'
 
 const viewRules = {
   url: { required: true, message: '请输入链接地址' }
@@ -89,6 +90,7 @@ export const btnTypes = [
 ]
 
 export default Vue.component('dynamic-type-input', {
+  components: { 'el-form-item': FormItem, 'el-input': Input },
   props: {
     type: {
       type: String,
@@ -116,14 +118,15 @@ export default Vue.component('dynamic-type-input', {
       immediate: true,
       deep: true,
       handler(value) {
-        this.button = value || {}
+        this.button = _.cloneDeep(value || {})
       }
     },
     button: {
       immediate: true,
       deep: true,
       handler(button) {
-        this.$emit('input', button)
+        // this.$emit('input', {})
+        !_.isEqual(button, this.value) && this.$emit('input', button)
       }
     },
     type: {

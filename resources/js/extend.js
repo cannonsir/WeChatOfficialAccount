@@ -6,12 +6,16 @@ import Material from './views/account/material'
 import Setting from './views/account/setting'
 import Accounts from './views/accounts'
 import Avue from '@smallwei/avue';
+// import ElementUI from 'element-ui'
+
+// import './assets/css/element-variables.scss'
 import '@smallwei/avue/lib/index.css';
 
 VueAdmin.booting((Vue, router, store) => {
-    Vue.use(Avue)
+  Vue.use(Avue)
+  // Vue.use(ElementUI)
 
-    router.addRoutes([
+  router.addRoutes([
         {
             name: 'WeChatOfficialAccounts',
             path: '/wechat-official-accounts',
@@ -50,8 +54,7 @@ VueAdmin.booting((Vue, router, store) => {
                 }
             ]
         }
-
     ])
 
-    Vue.component("WeChatOfficialAccount", require('./views/accounts.vue').default)
+  Vue.component("WeChatOfficialAccount", require('./views/accounts.vue').default)
 });

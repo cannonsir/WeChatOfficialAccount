@@ -40,7 +40,7 @@ import AccountSheet from './components/AccountSheet'
 import { store, index } from '../api/account'
 
 export default {
-  name: 'Accounts',
+  name: 'WeChatOfficialAccount',
   components: { AccountSheet },
   data() {
     return {

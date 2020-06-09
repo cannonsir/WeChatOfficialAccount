@@ -14,11 +14,11 @@
         "laravel-mix": "^4.1.4"
     },
     "dependencies": {
-        "@smallwei/avue": "^2.6.0",
+        "@smallwei/avue": "^2.6.1",
         "@vue/babel-helper-vue-jsx-merge-props": "^1.0.0",
         "@vue/babel-preset-jsx": "^1.1.2",
         "css-loader": "^3.5.3",
-        "element-ui": "^2.13.2",
+        "element-ui": "^2.13.0",
         "sass-loader": "^7.1.0",
         "scss-loader": "0.0.1",
         "vue": "^2.6.11",

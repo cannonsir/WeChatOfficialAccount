@@ -30,7 +30,7 @@
 
             <el-divider />
 
-            <dynamic-type-input v-if="btn.type" v-model="btn" :type="btn.type" @update:rules="dynamicTypeInputRules = $event" />
+            <dynamic-type-input v-if="btn.type" :value="btn" @input="btn = $event" :type="btn.type" @update:rules="dynamicTypeInputRules = $event" />
           </div>
         </el-form>
       </div>
@@ -54,7 +54,7 @@ export default {
   },
   data() {
     return {
-      btn: this.value,
+      btn: {},
       dynamicTypeInputRules: null
     }
   },
@@ -85,14 +85,14 @@ export default {
       immediate: true,
       deep: true,
       handler(value) {
-        this.btn = value
+        this.btn = _.cloneDeep(value)
       }
     },
     btn: {
       immediate: true,
       deep: true,
       handler(btn) {
-        this.$emit('input', btn)
+        !_.isEqual(btn, this.value) && this.$emit('input', btn)
       }
     }
   },
