@@ -4,6 +4,8 @@
     <div v-if="selectedButton" class="adjust">
       <event-assign ref="eventAssign" v-model="selectedButton" @destroy="handleDestroyButton" />
     </div>
+
+    <pre>{{ menu }}</pre>
   </div>
 </template>
 
@@ -11,7 +13,7 @@
 import MobilePreview from './MobilePreview'
 import EventAssign from './EventAssign'
 import _ from 'lodash'
-import { btnTypes } from './DynamicTypeInput'
+import { allowButtons } from './DynamicTypeInput'
 
 export default {
   name: 'WeChatMenuEditor',
@@ -131,11 +133,11 @@ export default {
       return button
     },
     validate() {
-      const allowTypes = btnTypes.map(item => (item.value))
+      const allowTypes = allowButtons.map(item => (item.value))
       const formValidate = () => this.$refs.eventAssign && this.$refs.eventAssign.formValidate()
       const clearFormValidate = () => this.$refs.eventAssign && this.$refs.eventAssign.clearValidate()
 
-      if (!formValidate()) return false
+      if (this.$refs.eventAssign && !formValidate()) return false
 
       const deepValidate = (buttons) => {
         for (const button of buttons) {

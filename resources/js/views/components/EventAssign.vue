@@ -14,7 +14,7 @@
           <div v-show="!btn.sub_button || btn.sub_button.length === 0">
             <el-form-item label="按钮类型" prop="type">
               <el-select v-model="btn.type" placeholder="请选择按钮类型" @change="handleToggleType">
-                <el-option v-for="type in btnTypes" :key="type.value" :label="type.label" :value="type.value" />
+                <el-option v-for="type in allowButtons" :key="type.value" :label="type.label" :value="type.value" />
               </el-select>
 
               <el-popover
@@ -30,7 +30,35 @@
 
             <el-divider />
 
-            <dynamic-type-input v-if="btn.type" :value="btn" @input="btn = $event" :type="btn.type" @update:rules="dynamicTypeInputRules = $event" />
+            <div v-if="btn.type === 'view'">
+              <el-form-item label='链接地址' prop='url'>
+                <el-input v-model="btn.url" clearable placeholder='https://' />
+              </el-form-item>
+            </div>
+
+            <div v-if="btn.type === 'miniprogram'">
+              <el-form-item label='小程序APPID' prop='appid'>
+                <el-input v-model="btn.appid" clearable placeholder='your app_id'/>
+              </el-form-item>
+              <el-form-item label='小程序页面路径' prop='pagepath'>
+                <el-input v-model="btn.pagepath" clearable placeholder='pages/home'/>
+              </el-form-item>
+              <el-form-item label='备用链接地址' prop='url'>
+                <el-input v-model="btn.url" clearable placeholder='https://'/>
+              </el-form-item>
+            </div>
+
+            <div v-if="['click', 'scancode_push', 'scancode_waitmsg', 'pic_sysphoto','pic_photo_or_album', 'pic_weixin', 'location_select'].includes(btn.type)">
+              <el-form-item label='标识符(key)' prop='key'>
+                <el-input v-model="btn.key" placeholder='菜单KEY值，用于消息接口推送，不超过128字节'/>
+              </el-form-item>
+            </div>
+
+            <div v-if="['media_id', 'view_limited'].includes(btn.type)">
+              <el-form-item label='素材id' prop='media_id'>
+                <el-input v-model="btn.media_id" placeholder='media_id'/>
+              </el-form-item>
+            </div>
           </div>
         </el-form>
       </div>
@@ -40,8 +68,8 @@
 
 <script>
 import _ from 'lodash'
-import { btnTypes } from './DynamicTypeInput'
 import DynamicTypeInput from './DynamicTypeInput'
+import { allowButtons } from './DynamicTypeInput'
 
 export default {
   name: 'EventAssign',
@@ -54,16 +82,12 @@ export default {
   },
   data() {
     return {
-      btn: {},
-      dynamicTypeInputRules: null
+      btn: {}
     }
   },
   computed: {
-    btnTypes() {
-      return btnTypes
-    },
     btnTypeDesc() {
-      return (_.find(this.btnTypes, { value: this.btn.type || '' }) || {}).desc || ''
+      return (_.find(this.allowButtons, { value: this.btn.type || '' }) || {}).desc || ''
     },
     basicRules() {
       const rules = {
@@ -75,6 +99,13 @@ export default {
       }
 
       return rules
+    },
+    allowButtons() {
+      return allowButtons
+    },
+    dynamicTypeInputRules() {
+      const item = _.find(this.allowButtons, { value: this.btn.type }) || {}
+      this.$emit('update:rules', item.rules || {})
     },
     allRules() {
       return { ...this.basicRules, ...this.dynamicTypeInputRules }

@@ -22,6 +22,7 @@
         "sass-loader": "^7.1.0",
         "scss-loader": "0.0.1",
         "vue": "^2.6.11",
+        "vue-template-compiler": "^2.6.11",
         "vuex": "^3.4.0"
     }
 }
