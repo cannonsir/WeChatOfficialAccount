@@ -104,8 +104,7 @@ export default {
       return allowButtons
     },
     dynamicTypeInputRules() {
-      const item = _.find(this.allowButtons, { value: this.btn.type }) || {}
-      this.$emit('update:rules', item.rules || {})
+      return (_.find(this.allowButtons, { value: this.btn.type }) || {}).rules || {}
     },
     allRules() {
       return { ...this.basicRules, ...this.dynamicTypeInputRules }
@@ -135,9 +134,6 @@ export default {
         }
       }
     },
-    generateKey() {
-      return Math.random().toString(36).slice(-8)
-    },
     formValidate() {
       let valid = false
 
@@ -153,7 +149,6 @@ export default {
 .event-assign {
   height: 100%;
   width: 100%;
-  border: 1px solid #e3e3e3;
   a {
     text-decoration: none;
     color: #1989fa;

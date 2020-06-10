@@ -1,11 +1,20 @@
 <template>
   <div class="warp">
-    <mobile-preview ref="mobilePreview" v-model="menu.button" class="preview" @selected-id-change="selected = $event" />
-    <div v-if="selectedButton" class="adjust">
-      <event-assign ref="eventAssign" v-model="selectedButton" @destroy="handleDestroyButton" />
-    </div>
+    <mobile-preview
+      ref="mobilePreview"
+      v-model="menu.button"
+      class="preview"
+      @selected-arr-path-change="selectedArrPath = $event"
+      @selected-str-path-change="selectedStrPath = $event"
+    />
+    <div class="adjust">
+      <event-assign v-if="selectedButton" ref="eventAssign" v-model="selectedButton" @destroy="destroyButton(selectedArrPath)" />
 
-    <pre>{{ menu }}</pre>
+      <div v-else class="none">
+        <svg t="1591760206451" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10587" width="64" height="64"><path d="M855.6 427.2H168.5c-12.7 0-24.4 6.9-30.6 18L4.4 684.7C1.5 689.9 0 695.8 0 701.8v287.1c0 19.4 15.7 35.1 35.1 35.1H989c19.4 0 35.1-15.7 35.1-35.1V701.8c0-6-1.5-11.8-4.4-17.1L886.2 445.2c-6.2-11.1-17.9-18-30.6-18zM673.4 695.6c-16.5 0-30.8 11.5-34.3 27.7-12.7 58.5-64.8 102.3-127.2 102.3s-114.5-43.8-127.2-102.3c-3.5-16.1-17.8-27.7-34.3-27.7H119c-26.4 0-43.3-28-31.1-51.4l81.7-155.8c6.1-11.6 18-18.8 31.1-18.8h622.4c13 0 25 7.2 31.1 18.8l81.7 155.8c12.2 23.4-4.7 51.4-31.1 51.4H673.4zM819.9 209.5c-1-1.8-2.1-3.7-3.2-5.5-9.8-16.6-31.1-22.2-47.8-12.6L648.5 261c-17 9.8-22.7 31.6-12.6 48.4 0.9 1.4 1.7 2.9 2.5 4.4 9.5 17 31.2 22.8 48 13L807 257.3c16.7-9.7 22.4-31 12.9-47.8zM375.4 261.1L255 191.6c-16.7-9.6-38-4-47.8 12.6-1.1 1.8-2.1 3.6-3.2 5.5-9.5 16.8-3.8 38.1 12.9 47.8L337.3 327c16.9 9.7 38.6 4 48-13.1 0.8-1.5 1.7-2.9 2.5-4.4 10.2-16.8 4.5-38.6-12.4-48.4zM512 239.3h2.5c19.5 0.3 35.5-15.5 35.5-35.1v-139c0-19.3-15.6-34.9-34.8-35.1h-6.4C489.6 30.3 474 46 474 65.2v139c0 19.5 15.9 35.4 35.5 35.1h2.5z" p-id="10588" fill="#e6e6e6"></path></svg>
+        <span class="text">请选择菜单按钮</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -27,34 +36,17 @@ export default {
   data() {
     return {
       menu: {},
-      selected: null
+      selectedArrPath: null,
+      selectedStrPath: null
     }
   },
   computed: {
-    selectedButtonArrayPath() {
-      const id = this.selected
-
-      for (const index in this.menu.button) {
-        const ref = this.menu.button[index]
-
-        if (ref.id === id) return [index]
-
-        const findSubButtonIndex = _.findIndex(ref.sub_button || [], { id })
-
-        if (findSubButtonIndex !== -1) return [index, findSubButtonIndex]
-      }
-
-      return []
-    },
-    selectedButtonStringPath() {
-      return this.selectedButtonArrayPath.reduce((res, next) => `${res}${res === '' ? '' : '.sub_button'}[${next}]`, '')
-    },
     selectedButton: {
       get() {
-        return _.get(this.menu.button, this.selectedButtonStringPath) || null
+        return _.get(this.menu.button, this.selectedStrPath) || null
       },
       set(button) {
-        const arr = this.selectedButtonArrayPath
+        const arr = this.selectedArrPath
 
         if (arr.length === 1) {
           this.$set(this.menu.button, arr[0], button)
@@ -71,86 +63,66 @@ export default {
       immediate: true,
       deep: true,
       handler(value) {
-        const copy = _.cloneDeep(value)
-        copy.button = this.deepButtonsGenerateId(copy.button || [])
-        this.menu = copy
+        this.menu = _.cloneDeep(value)
       }
     },
     menu: {
       immediate: true,
       deep: true,
       handler(menu) {
-        const copy = _.cloneDeep(menu)
-        copy.button = this.deepButtonsDeleteId(copy.button || [])
-        this.$emit('change', copy)
+        !_.isEqual(menu, this.value) && this.$emit('input', _.cloneDeep(menu))
       }
     }
   },
   methods: {
-    deepButtonsGenerateId(buttons) {
-      return buttons.map(button => {
-        button.id = button.id || Math.random().toString(36).slice(-8)
-        if (button.sub_button) {
-          button.sub_button = this.deepButtonsGenerateId(button.sub_button)
-        }
-        return button
-      })
-    },
-    deepButtonsDeleteId(buttons) {
-      return buttons.map(button => {
-        delete button.id
-        if (button.sub_button) {
-          button.sub_button = this.deepButtonsDeleteId(button.sub_button)
-        }
-        return button
-      })
-    },
-    handleDestroyButton() {
-      const arr = this.selectedButtonArrayPath
+    /**
+     * 删除某按钮
+     *
+     * @param path 层级数组
+     */
+    destroyButton(path) {
+      // 父层级
+      if (path.length === 1) {
+        this.$delete(this.menu.button, path[0])
 
-      if (arr.length < 1 || arr.length > 2) return
-
-      if (arr.length === 1) {
-        this.$delete(this.menu.button, arr[0])
-      } else {
-        this.$delete(this.menu.button, arr[1])
-      }
-    },
-    formatTransform(menu) {
-      const button = menu.button
-
-      const cleanTrashFields = button => {
-        for (const key in button) {
-          [].includes(key) || delete button[key]
-        }
-        return button
+        const newIndex = path[0]
+        this.toggleSelectedArrPath(newIndex < this.menu.button.length ? [newIndex] : [])
       }
 
-      for (const key in button) {
-        button[key] = cleanTrashFields(button[key])
-      }
+      // 子层级
+      if (path.length === 2) {
+        this.$delete(this.menu.button[path[0]].sub_button, [path[1]])
 
-      return button
+        const newSubIndex = path[1]
+        this.toggleSelectedArrPath(newSubIndex < this.menu.button[path[0]].sub_button.length ? [path[0], newSubIndex] : [path[0]])
+      }
     },
+    toggleSelectedArrPath(arr = []) {
+      return this.$refs.mobilePreview.toggleSelectedArrPath(arr)
+    },
+    /**
+     * 验证数据
+     *
+     * @returns {boolean}
+     */
     validate() {
       const allowTypes = allowButtons.map(item => (item.value))
       const formValidate = () => this.$refs.eventAssign && this.$refs.eventAssign.formValidate()
-      const clearFormValidate = () => this.$refs.eventAssign && this.$refs.eventAssign.clearValidate()
 
       if (this.$refs.eventAssign && !formValidate()) return false
 
-      const deepValidate = (buttons) => {
-        for (const button of buttons) {
+      const deepValidate = (buttons, parent_index = null) => {
+        for (const index in buttons) {
+          const button = buttons[index]
           if (button.sub_button) {
-            if (deepValidate(button.sub_button)) {
+            if (deepValidate(button.sub_button, index)) {
               continue
             } else {
               return false
             }
           } else {
             if (!button.type || !allowTypes.includes(button.type)) {
-              this.$refs.mobilePreview.toggleSelected(button.id, true)
-              // clearFormValidate()
+              this.toggleSelectedArrPath(parent_index ? [parent_index, index] : [index])
               formValidate()
               return false
             }
@@ -178,6 +150,18 @@ export default {
   .adjust {
     margin-left: 20px;
     width: 100%;
+    border: 1px solid #e3e3e3;
+    .none {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      .text {
+        margin-top: 15px;
+        color: gray;
+      }
+    }
   }
 }
 </style>

@@ -12,7 +12,7 @@
       </div>
     </el-alert>
 
-    <we-chat-menu-editor ref="weChatMenuEditor" :value="menu" @change="handleChange" />
+    <we-chat-menu-editor ref="weChatMenuEditor" v-model="menu" />
 
     <div class="operation">
       <el-button type="primary" size="small" @click="handleSave">保存</el-button>
@@ -31,21 +31,17 @@ export default {
   inject: ['account'],
   data() {
     return {
-      menu: {},
-      changed: {}
+      menu: {}
     }
   },
   methods: {
-    handleChange(menu) {
-      this.changed = menu
-    },
     async handleSave() {
       if (!this.$refs.weChatMenuEditor.validate()) return this.$message.error('请检查参数')
 
       const loading = this.$loading({ text: '新增中,请稍等...' })
 
       try {
-        await store(this.account.id, this.changed)
+        await store(this.account.id, this.menu)
 
         this.$message.success('请求成功')
       } catch (e) {
@@ -57,6 +53,7 @@ export default {
     },
     handleReset() {
       this.menu = {}
+      this.$refs.weChatMenuEditor.toggleSelectedArrPath()
     }
   }
 }

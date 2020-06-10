@@ -5,34 +5,34 @@
         v-for="(btn, index) in buttons"
         :key="btn.id"
         class="button"
-        :class="{ active: btn.id === selected }"
-        @click="toggleSelected(btn.id)"
+        :class="{ active: index === selectedArrPath[0] }"
+        @click="toggleSelectedArrPath([index])"
       >
         <div class="label">
           <i v-show="btn.sub_button && btn.sub_button.length > 0" class="el-icon-s-operation" />
           <span>{{ btn.name }}</span>
         </div>
 
-        <div v-show="visibleSubButtonIndex === index" class="sub-buttons" @click.stop>
+        <div v-show="selectedArrPath[0] === index" class="sub-buttons" @click.stop>
           <div
-            v-for="sub_btn in btn.sub_button"
+            v-for="(sub_btn, sub_index) in btn.sub_button"
             :key="sub_btn.id"
             class="button"
-            @click="toggleSelected(sub_btn.id)"
+            @click="toggleSelectedArrPath([index, sub_index])"
           >
-            <div class="label" :class="{ active: sub_btn.id === selected }">{{ sub_btn.name | buttonTextEllipsis }}</div>
+            <div class="label" :class="{ active: index === selectedArrPath[0] && sub_index === selectedArrPath[1] }">{{ sub_btn.name | buttonTextEllipsis }}</div>
           </div>
           <div
             v-if="!btn.sub_button || btn.sub_button.length < 5"
             class="button add"
-            @click="addSubButton(btn.id)"
+            @click="addButton(index)"
           >
             <div class="label"><i class="el-icon-plus" /></div>
           </div>
           <div class="arrow" />
         </div>
       </div>
-      <div v-if="buttons.length < 3" class="button" @click="addButton">
+      <div v-if="buttons.length < 3" class="button" @click="addButton()">
         <i class="el-icon-plus label" />
       </div>
     </div>
@@ -45,6 +45,12 @@ import _ from 'lodash'
 export default {
   name: 'MobilePreview',
   filters: {
+    /**
+     * 按钮字符裁剪
+     *
+     * @param text
+     * @returns {*}
+     */
     buttonTextEllipsis(text) {
       const strlen = val => {
         var len = 0
@@ -91,87 +97,62 @@ export default {
   },
   data() {
     return {
-      buttons: this.value,
-      selected: null
-    }
-  },
-  computed: {
-    visibleSubButtonIndex() {
-      const id = this.selected
-
-      for (const index in this.buttons) {
-        const ref = this.buttons[index]
-
-        if (ref.id === id) return Number(index)
-
-        const findSubIndex = _.findIndex(ref.sub_button || [], { id })
-
-        if (findSubIndex !== -1) return Number(index)
-      }
-
-      return null
+      buttons: [],
+      selectedArrPath: []
     }
   },
   watch: {
     value: {
       immediate: true,
       deep: true,
-      handler(button) {
-        this.buttons = button
+      handler(value) {
+        this.buttons = _.cloneDeep(value)
       }
     },
     buttons: {
       immediate: true,
       deep: true,
       handler(buttons) {
-        this.$emit('input', buttons)
+        !_.isEqual(buttons, this.value) && this.$emit('input', buttons)
       }
     },
-    selected(id) {
-      this.$emit('selected-id-change', id)
-    },
-    visibleSubButtonIndex(index) {
-      if (index === null && !!this.selected && this.buttons.length > 0) {
-        this.selected = this.buttons[0].id
-      }
+    selectedArrPath(path) {
+      this.$emit('selected-arr-path-change', path)
+      this.$emit('selected-str-path-change', path.reduce((res, next) => `${res}${res === '' ? '' : '.sub_button'}[${next}]`, ''))
     }
   },
   methods: {
-    addButton() {
-      this.buttons.push({
-        id: Math.random().toString(36).slice(-8),
-        name: '菜单名称'
-      })
-    },
-    addSubButton(id) {
-      const findIndex = _.findIndex(this.buttons, { id })
-
-      this.$set(this.buttons[findIndex], 'sub_button', this.buttons[findIndex].sub_button || [])
-
-      for (const key in this.buttons[findIndex]) {
-        ['id', 'name', 'sub_button'].includes(key) || this.$delete(this.buttons[findIndex], key)
-      }
-
-      this.buttons[findIndex].sub_button.push({
-        id: Math.random().toString(36).slice(-8),
-        name: '子菜单名称'
-      })
-    },
-    toggleSelected(id, force = false) {
-      if (force) {
-        this.selected = id
+    /**
+     * 添加[子]按钮
+     *
+     * @param parentIndex 父级按钮索引
+     */
+    addButton(parentIndex = null) {
+      if (parentIndex === null) {
+        this.buttons.push({
+          name: '菜单名称'
+        })
+        this.selectedArrPath[0] === undefined && this.toggleSelectedArrPath([0])
         return
       }
 
-      const topBtnIndex = _.findIndex(this.buttons, { id })
+      this.$set(this.buttons[parentIndex], 'sub_button', this.buttons[parentIndex].sub_button || [])
 
-      this.selected = topBtnIndex === -1
-        ? id
-        : topBtnIndex === this.visibleSubButtonIndex
-          ? null
-          : this.selected === id
-            ? null
-            : id
+      for (const key in this.buttons[parentIndex]) {
+        ['id', 'name', 'sub_button'].includes(key) || this.$delete(this.buttons[parentIndex], key)
+      }
+
+      this.buttons[parentIndex].sub_button.push({
+        name: '子菜单名称'
+      })
+      this.selectedArrPath[1] === undefined && this.toggleSelectedArrPath([parentIndex, 0])
+    },
+    /**
+     * 切换选中按钮的数组路径
+     * @param arr
+     */
+    toggleSelectedArrPath(arr) {
+      this.selectedArrPath = arr.map(v => Number(v))
     }
   }
 }
