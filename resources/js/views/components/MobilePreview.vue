@@ -5,10 +5,9 @@
         v-for="(btn, index) in buttons"
         :key="btn.id"
         class="button"
-        :class="{ active: index === selectedArrPath[0] }"
         @click="toggleSelectedArrPath([index])"
       >
-        <div class="label">
+        <div class="label" :class="{ active: selectedArrPath.length === 1 && index === selectedArrPath[0] }">
           <i v-show="btn.sub_button && btn.sub_button.length > 0" class="el-icon-s-operation" />
           <span>{{ btn.name }}</span>
         </div>
@@ -196,9 +195,6 @@ $fontSize: 14px;
       &:not(:last-of-type) {
         border-right: 1px solid $borderColor;
       }
-      &.active .label{
-        border: 2px solid $activeBorderColor;
-      }
 
       .label {
         height: 100%;
@@ -208,6 +204,7 @@ $fontSize: 14px;
         align-items: center;
         cursor: pointer;
         border: 2px solid $buttonBackground;
+        box-sizing: border-box;
         span {
           text-overflow: ellipsis;
           -o-text-overflow: ellipsis;
@@ -216,6 +213,9 @@ $fontSize: 14px;
         }
         &:hover {
           color: #000;
+        }
+        &.active{
+          border: 2px solid $activeBorderColor;
         }
       }
 
