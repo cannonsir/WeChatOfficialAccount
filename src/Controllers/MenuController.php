@@ -14,10 +14,10 @@ use Gtd\WeChatOfficialAccount\Models\Account;
  */
 class MenuController extends Controller
 {
-    /**
+    /*
      * 创建菜单
      */
-    public function store(Account $account, Request $request)
+    public function store(Request $request, Account $account)
     {
         $request->validate([
             'button' => 'required|array',
@@ -25,5 +25,40 @@ class MenuController extends Controller
         ]);
 
         return $account->gateway()->menu->create($request->button, $request->matchrule ?? []);
+    }
+
+    /*
+     * 查询已设置菜单
+     */
+    public function index(Request $request, Account $account)
+    {
+        $response = $account->gateway()->menu->list();
+
+        dd($response);
+
+        return $account->gateway()->menu->list();
+    }
+
+    /*
+     * 获取当前菜单
+     */
+    public function current(Request $request, Account $account)
+    {
+        $response = $account->gateway()->menu->current();
+
+        $deep = function (array $buttons) use (&$deep) {
+            foreach ($buttons as &$button) {
+                if (isset($button['sub_button']['list'])) {
+                    $button['sub_button'] = $button['sub_button']['list'];
+                    $deep($button['sub_button']);
+                }
+            }
+
+            return $buttons;
+        };
+
+        $button = $deep($response['selfmenu_info']['button']);
+
+        return response()->json(compact('button'));
     }
 }

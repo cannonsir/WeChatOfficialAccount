@@ -97,13 +97,20 @@ export default {
         this.toggleSelectedArrPath(newSubIndex < this.menu.button[path[0]].sub_button.length ? [path[0], newSubIndex] : [path[0]])
       }
     },
+
+    /**
+     * 切换当前选中按钮
+     *
+     * @param arr 数组路径
+     */
     toggleSelectedArrPath(arr = []) {
       return this.$refs.mobilePreview.toggleSelectedArrPath(arr)
     },
+
     /**
      * 验证数据
      *
-     * @returns {boolean}
+     * @returns {boolean} 是否验证通过
      */
     validate() {
       const allowTypes = allowButtons.map(item => (item.value))
@@ -142,6 +149,7 @@ export default {
 .warp {
   // TODO
   height: 580px;
+  margin-bottom: 10px;
   width: 100%;
   display: flex;
   .preview {

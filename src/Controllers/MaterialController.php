@@ -7,6 +7,13 @@ use EasyWeChat\Kernel\Messages\Article;
 use Gtd\WeChatOfficialAccount\Models\Account;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Class MaterialController
+ *
+ * copied from:
+ * @see \Gtd\Material\Controllers\MaterialController
+ * @package Gtd\WeChatOfficialAccount\Controllers
+ */
 class MaterialController
 {
     public function index(MaterialRequest $request, Account $account)

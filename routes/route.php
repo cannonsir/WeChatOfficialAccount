@@ -16,11 +16,15 @@ $router->group([
     $router->resource('wechat-official-accounts', 'ExtendController');
 
     $router->prefix('WeChatOfficialAccount')->group(function ($router) {
+        $router->apiResource('accounts', 'AccountController');
+
         $router->prefix('accounts/{wx_account}')->group(function ($router) {
             $router->get('users', 'UserController@index');
             $router->put('users', 'UserController@sync');
 
             $router->post('menu', 'MenuController@store');
+            $router->get('menu', 'MenuController@index');
+            $router->get('menu/current', 'MenuController@current');
 
             $router->post('user_tags/attach', 'UserTagController@attachTagForUsers');
             $router->post('user_tags/detach', 'UserTagController@detachTagForUsers');
@@ -30,7 +34,5 @@ $router->group([
                 'materials' => 'MaterialController'
             ]);
         });
-
-        $router->apiResource('accounts', 'AccountController');
     });
 });
