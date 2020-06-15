@@ -141,7 +141,13 @@ export default {
   methods: {
     async fetchTags() {
       try {
-        const { tags } = await index(this.account.id)
+        const res = await index(this.account.id)
+        let tags
+        if (res.hasOwnProperty('tags')) {
+          tags = res.tags
+        } else {
+          throw new Error(JSON.stringify(res))
+        }
         tags.unshift({
           id: '',
           name: '不限',

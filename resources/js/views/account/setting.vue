@@ -6,7 +6,7 @@
 
     <el-divider content-position="left">其他操作</el-divider>
 
-    <el-button type="danger" @click="handleDelete">删除</el-button>
+    <el-button type="danger" @click="handleDelete" style="margin-bottom: 20px">删除</el-button>
   </div>
 </template>
 

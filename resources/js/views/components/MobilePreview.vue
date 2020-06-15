@@ -28,7 +28,7 @@
           >
             <div class="label"><i class="el-icon-plus" /></div>
           </div>
-          <div class="arrow" v-if="btn.sub_button.length > 0" />
+          <div class="arrow" v-if="!readonly || (btn.sub_button && btn.sub_button.length > 0)" />
         </div>
       </div>
       <div v-if="!readonly && buttons.length < 3" class="button" @click="addButton()">

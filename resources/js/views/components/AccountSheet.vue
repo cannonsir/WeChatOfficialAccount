@@ -1,6 +1,6 @@
 <template>
   <div class="sheet">
-    <el-form ref="ruleForm" :model="form" :rules="rules" label-width="105px" class="demo-ruleForm">
+    <el-form ref="ruleForm" :model="form" :rules="rules" label-width="110px" class="demo-ruleForm">
       <el-form-item label="名称" prop="name">
         <el-input v-model="form.name" />
       </el-form-item>
