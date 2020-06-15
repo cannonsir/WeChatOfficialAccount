@@ -46,6 +46,8 @@ class MenuController extends Controller
     {
         $response = $account->gateway()->menu->current();
 
+        isset($response['errcode']) and abort(500, $response['errmsg']);
+
         $deep = function (array $buttons) use (&$deep) {
             foreach ($buttons as &$button) {
                 if (isset($button['sub_button']['list'])) {

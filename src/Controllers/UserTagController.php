@@ -5,6 +5,7 @@ namespace Gtd\WeChatOfficialAccount\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Gtd\WeChatOfficialAccount\Models\Account;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * 公众号用户标签
@@ -14,9 +15,19 @@ use Gtd\WeChatOfficialAccount\Models\Account;
  */
 class UserTagController extends Controller
 {
+    const CACHE_KEY_PREFIX = 'WeChatOfficialAccount:user_tags:';
+
     public function index(Account $account, Request $request)
     {
-        return $account->gateway()->user_tag->list();
+        $cacheKey = self::CACHE_KEY_PREFIX . $account->getKey();
+
+        if (empty($tags = Cache::get($cacheKey))) {
+            $tags = $account->gateway()->user_tag->list();
+            isset($tags['errcode']) and abort(500, $tags['errmsg']);
+            Cache::put($cacheKey, $tags, now()->addDay());
+        }
+
+        return $tags;
     }
 
     /**
@@ -49,6 +60,8 @@ class UserTagController extends Controller
     {
         $request->validate(['name' => 'required']);
 
+        Cache::forget(self::CACHE_KEY_PREFIX . $account->getKey());
+
         return $account->gateway()->user_tag->create($request->name);
     }
 
@@ -59,6 +72,8 @@ class UserTagController extends Controller
             'name' => 'required'
         ]);
 
+        Cache::forget(self::CACHE_KEY_PREFIX . $account->getKey());
+
         return $account->gateway()->user_tag->update($request->id, $request->name);
     }
 
@@ -67,6 +82,8 @@ class UserTagController extends Controller
         $request->validate([
             'id' => 'required'
         ]);
+
+        Cache::forget(self::CACHE_KEY_PREFIX . $account->getKey());
 
         return $account->gateway()->user_tag->update($request->id);
     }
