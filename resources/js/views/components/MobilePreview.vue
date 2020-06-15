@@ -22,16 +22,16 @@
             <div class="label" :class="{ active: index === selectedArrPath[0] && sub_index === selectedArrPath[1] }">{{ sub_btn.name | buttonTextEllipsis }}</div>
           </div>
           <div
-            v-if="!btn.sub_button || btn.sub_button.length < 5"
+            v-if="!readonly && (!btn.sub_button || btn.sub_button.length < 5)"
             class="button add"
             @click="addButton(index)"
           >
             <div class="label"><i class="el-icon-plus" /></div>
           </div>
-          <div class="arrow" />
+          <div class="arrow" v-if="btn.sub_button.length > 0" />
         </div>
       </div>
-      <div v-if="buttons.length < 3" class="button" @click="addButton()">
+      <div v-if="!readonly && buttons.length < 3" class="button" @click="addButton()">
         <i class="el-icon-plus label" />
       </div>
     </div>
@@ -92,6 +92,10 @@ export default {
     value: {
       type: Array,
       default: () => []
+    },
+    readonly: {
+      type: Boolean,
+      required: false
     }
   },
   data() {
@@ -230,6 +234,7 @@ $fontSize: 14px;
         .button {
           display: flex;
           justify-content: center;
+          min-width: 5rem;
           height: 100%;
           width: 100%;
           &:not(:last-of-type) {
@@ -240,7 +245,6 @@ $fontSize: 14px;
           }
           &.add {
             text-align: center;
-            min-width: 5rem;
           }
           .label {
             height: 100%;

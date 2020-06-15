@@ -4,16 +4,16 @@
       <div class="head">
         <span class="title">{{ btn.name }}</span>
 
-        <el-button type="danger" size="small" @click="$emit('destroy')">删除菜单</el-button>
+        <el-button v-if="!readonly" type="danger" size="small" @click="$emit('destroy')">删除菜单</el-button>
       </div>
       <div class="content">
         <el-form ref="form" class="form" :rules="allRules" :model="btn" label-width="130px">
           <el-form-item label="菜单名称" prop="name">
-            <el-input v-model="btn.name" clearable placeholder="一级菜单最多4个汉字，二级菜单最多7个汉字，多出来的部分将会以“...”代替,菜单不超过16个字节，子菜单不超过60个字节" />
+            <el-input :readonly="readonly" v-model="btn.name" clearable placeholder="一级菜单最多4个汉字，二级菜单最多7个汉字，多出来的部分将会以“...”代替,菜单不超过16个字节，子菜单不超过60个字节" />
           </el-form-item>
           <div v-show="!btn.sub_button || btn.sub_button.length === 0">
             <el-form-item label="按钮类型" prop="type">
-              <el-select v-model="btn.type" placeholder="请选择按钮类型" @change="handleToggleType">
+              <el-select :disabled="readonly" v-model="btn.type" placeholder="请选择按钮类型" @change="handleToggleType">
                 <el-option v-for="type in allowButtons" :key="type.value" :label="type.label" :value="type.value" />
               </el-select>
 
@@ -32,31 +32,31 @@
 
             <div v-if="btn.type === 'view'">
               <el-form-item label='链接地址' prop='url'>
-                <el-input v-model="btn.url" clearable placeholder='https://' />
+                <el-input :readonly="readonly" v-model="btn.url" clearable placeholder='https://' />
               </el-form-item>
             </div>
 
             <div v-if="btn.type === 'miniprogram'">
               <el-form-item label='小程序APPID' prop='appid'>
-                <el-input v-model="btn.appid" clearable placeholder='your app_id'/>
+                <el-input :readonly="readonly" v-model="btn.appid" clearable placeholder='your app_id'/>
               </el-form-item>
               <el-form-item label='小程序页面路径' prop='pagepath'>
-                <el-input v-model="btn.pagepath" clearable placeholder='pages/home'/>
+                <el-input :readonly="readonly" v-model="btn.pagepath" clearable placeholder='pages/home'/>
               </el-form-item>
               <el-form-item label='备用链接地址' prop='url'>
-                <el-input v-model="btn.url" clearable placeholder='https://'/>
+                <el-input :readonly="readonly" v-model="btn.url" clearable placeholder='https://'/>
               </el-form-item>
             </div>
 
             <div v-if="['click', 'scancode_push', 'scancode_waitmsg', 'pic_sysphoto','pic_photo_or_album', 'pic_weixin', 'location_select'].includes(btn.type)">
               <el-form-item label='标识符(key)' prop='key'>
-                <el-input v-model="btn.key" placeholder='菜单KEY值，用于消息接口推送，不超过128字节'/>
+                <el-input :readonly="readonly" v-model="btn.key" placeholder='菜单KEY值，用于消息接口推送，不超过128字节'/>
               </el-form-item>
             </div>
 
             <div v-if="['media_id', 'view_limited'].includes(btn.type)">
               <el-form-item label='素材id' prop='media_id'>
-                <el-input v-model="btn.media_id" placeholder='media_id'/>
+                <el-input :readonly="readonly" v-model="btn.media_id" placeholder='media_id'/>
               </el-form-item>
             </div>
           </div>
@@ -78,6 +78,10 @@ export default {
     value: {
       type: Object,
       required: true
+    },
+    readonly: {
+      type: Boolean,
+      required: false
     }
   },
   data() {

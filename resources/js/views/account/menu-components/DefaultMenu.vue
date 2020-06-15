@@ -1,6 +1,6 @@
 <template>
     <div>
-      <we-chat-menu-editor v-loading="loading" ref="weChatMenuEditor" v-model="menu" />
+      <we-chat-menu-editor v-loading="loading" ref="weChatMenuEditor" v-model="menu.button" />
 
       <div class="operation" v-if="changed">
         <el-button type="primary" size="small" @click="handleSave">保存</el-button>
@@ -21,7 +21,9 @@ export default {
   data() {
     return {
       loading: false,
-      menu: {},
+      menu: {
+        button: []
+      },
       origin: {}
     }
   },
@@ -48,6 +50,7 @@ export default {
     },
     async handleSave() {
       if (!this.$refs.weChatMenuEditor.validate()) return this.$message.error('请检查参数')
+      if (this.menu.button.length === 0) return this.$message.error('未设置菜单')
 
       const loading = this.$loading({ text: '新增中,请稍等...' })
 
@@ -55,6 +58,7 @@ export default {
         await store(this.account.id, this.menu)
 
         this.$message.success('保存成功')
+        loading.close()
 
         await this.fetchCurrentMenu()
       } catch (e) {

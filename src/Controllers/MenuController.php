@@ -28,15 +28,15 @@ class MenuController extends Controller
     }
 
     /*
-     * 查询已设置菜单
+     * 获取个性化菜单列表
      */
-    public function index(Request $request, Account $account)
+    public function individuationIndex(Request $request, Account $account)
     {
         $response = $account->gateway()->menu->list();
 
-        dd($response);
+        $menus = $response['conditionalmenu'] ?? [];
 
-        return $account->gateway()->menu->list();
+        return response()->json($menus);
     }
 
     /*
@@ -60,5 +60,13 @@ class MenuController extends Controller
         $button = $deep($response['selfmenu_info']['button']);
 
         return response()->json(compact('button'));
+    }
+
+    /*
+     * 删除菜单
+     */
+    public function destroy(Request $request, Account $account, string $menuId)
+    {
+        return $account->gateway()->menu->delete($menuId);
     }
 }

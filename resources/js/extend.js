@@ -5,6 +5,7 @@ import User from './views/account/user'
 import Material from './views/account/material'
 import Setting from './views/account/setting'
 import Accounts from './views/accounts'
+import IndividuationMenuEditor from './views/account/menu-components/IndividuationMenuEditor'
 import Avue from '@smallwei/avue';
 // import ElementUI from 'element-ui'
 
@@ -35,7 +36,15 @@ VueAdmin.booting((Vue, router, store) => {
                 {
                     name: 'WeChatOfficialAccount.menu',
                     path: 'menu',
-                    component: Menu
+                    component: Menu,
+                    children: [
+                      {
+                        name: 'WeChatOfficialAccount.menu.individuation',
+                        path: 'individuation',
+                        props: true,
+                        component: IndividuationMenuEditor
+                      }
+                    ]
                 },
                 {
                     name: 'WeChatOfficialAccount.user',

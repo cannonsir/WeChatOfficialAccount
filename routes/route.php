@@ -25,6 +25,8 @@ $router->group([
             $router->post('menu', 'MenuController@store');
             $router->get('menu', 'MenuController@index');
             $router->get('menu/current', 'MenuController@current');
+            $router->get('menu/individuation', 'MenuController@individuationIndex');
+            $router->delete('menu/{menuId}', 'MenuController@destroy');
 
             $router->post('user_tags/attach', 'UserTagController@attachTagForUsers');
             $router->post('user_tags/detach', 'UserTagController@detachTagForUsers');
