@@ -39,6 +39,7 @@
           @search-change="handleSearchChange"
           @current-change="handleCurrentPageChange"
           @size-change="handleSizeChange"
+          @refresh-change="fetchUsers"
         >
           <template slot="menuLeft">
             <el-button type="primary" size="small" @click="handleSyncUsers">同步用户</el-button>
