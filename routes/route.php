@@ -30,6 +30,7 @@ $router->group([
 
             $router->post('user_tags/attach', 'UserTagController@attachTagForUsers');
             $router->post('user_tags/detach', 'UserTagController@detachTagForUsers');
+            $router->post('user_tags/sync', 'UserTagController@syncTagForUsers');
 
             $router->apiResources([
                 'user_tags' => 'UserTagController',

@@ -5,6 +5,8 @@ namespace Gtd\WeChatOfficialAccount\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Gtd\WeChatOfficialAccount\Models\Account;
+use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -17,7 +19,7 @@ class UserTagController extends Controller
 {
     const CACHE_KEY_PREFIX = 'WeChatOfficialAccount:user_tags:';
 
-    public function index(Account $account, Request $request)
+    public function index(Request $request, Account $account)
     {
         $cacheKey = self::CACHE_KEY_PREFIX . $account->getKey();
 
@@ -30,33 +32,66 @@ class UserTagController extends Controller
         return $tags;
     }
 
-    /**
+    /*
      * 批量为部分用户设定某标签
      */
-    public function attachTagForUsers(Account $account, Request $request)
+    public function attachTagForUsers(Request $request, Account $account)
     {
         $request->validate([
+            'tagIds'=> 'required|array',
             'openIds' => 'required|array',
-            'tagId'=> 'required'
         ]);
 
-        return $account->gateway()->user_tag->tagUsers($request->openIds, $request->tagId);
+        foreach($request->tagIds as $tagId) {
+            $account->gateway()->user_tag->tagUsers($request->openIds, $tagId);
+        }
+
+        $account->syncUsers();
+
+        Cache::forget(self::CACHE_KEY_PREFIX . $account->getKey());
+
+        return response(null, Response::HTTP_ACCEPTED);
     }
 
-    /**
+    /*
      * 批量为部分用户取消设定某标签
      */
-    public function detachTagForUsers(Account $account, Request $request)
+    public function detachTagForUsers(Request $request, Account $account)
     {
         $request->validate([
+            'tagId'=> 'required',
             'openIds' => 'required|array',
-            'tagId'=> 'required'
         ]);
 
         return $account->gateway()->user_tag->untagUsers($request->openIds, $request->tagId);
     }
 
-    public function store(Account $account, Request $request)
+    public function syncTagForUsers(Request $request, Account $account)
+    {
+        $request->validate([
+            'tagIds'=> 'present|array',
+            'openIds' => 'required|array',
+        ]);
+
+        // 同步一下标签
+        $tags = $this->index($request, $account)['tags'];
+
+        $exceptTagIds = array_values(array_diff(array_map(fn ($tag) => $tag['id'], $tags), $request->tagIds));
+
+        // attach
+        foreach($request->tagIds as $tagId) $account->gateway()->user_tag->tagUsers($request->openIds, $tagId);
+
+        // detach
+        foreach ($exceptTagIds as $tagId) $account->gateway()->user_tag->untagUsers($request->openIds, $tagId);
+
+        $account->syncUsers();
+
+        Cache::forget(self::CACHE_KEY_PREFIX . $account->getKey());
+
+        return response(null, Response::HTTP_ACCEPTED);
+    }
+
+    public function store(Request $request, Account $account)
     {
         $request->validate(['name' => 'required']);
 
@@ -65,26 +100,23 @@ class UserTagController extends Controller
         return $account->gateway()->user_tag->create($request->name);
     }
 
-    public function update(Account $account, Request $request)
+    public function update(Account $account, Request $request, string $id)
     {
         $request->validate([
-            'id' => 'required',
             'name' => 'required'
         ]);
 
         Cache::forget(self::CACHE_KEY_PREFIX . $account->getKey());
 
-        return $account->gateway()->user_tag->update($request->id, $request->name);
+        return $account->gateway()->user_tag->update($id, $request->name);
     }
 
-    public function destroy(Account $account, Request $request)
+    public function destroy(Request $request, Account $account, string $id)
     {
-        $request->validate([
-            'id' => 'required'
-        ]);
+        $account->syncUsers();
 
         Cache::forget(self::CACHE_KEY_PREFIX . $account->getKey());
 
-        return $account->gateway()->user_tag->update($request->id);
+        return $account->gateway()->user_tag->delete($id);
     }
 }

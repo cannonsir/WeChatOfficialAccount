@@ -5,6 +5,7 @@ namespace Gtd\WeChatOfficialAccount\Models;
 use EasyWeChat\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Osi\LaravelControllerTrait\Models\FilterAndSorting;
@@ -87,15 +88,19 @@ class Account extends Model
 
         $table = (new User)->getTable();
         $now = (string) now();
+        $updatedOpenIds = [];
 
         // 遍历同步至数据库
         foreach ($generator() as $users) foreach ($users as $user) {
+            $updatedOpenIds[] = $user['openid'];
             $user['tagid_list'] = json_encode($user['tagid_list']);
             $user['last_sync_at'] = $now;
             $user['account_id'] = $this->getKey();
 
             DB::table($table)->updateOrInsert(['openid' => $user['openid']], $user);
         }
+
+        DB::table($table)->whereNotIn('openid', $updatedOpenIds)->update(['subscribe' => 0]);
     }
 
     /**
