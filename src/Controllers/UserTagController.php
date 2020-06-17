@@ -76,7 +76,9 @@ class UserTagController extends Controller
         // 同步一下标签
         $tags = $this->index($request, $account)['tags'];
 
-        $exceptTagIds = array_values(array_diff(array_map(fn ($tag) => $tag['id'], $tags), $request->tagIds));
+        $exceptTagIds = array_values(array_diff(array_map(function ($tag) {
+            return $tag['id'];
+        }, $tags), $request->tagIds));
 
         // attach
         foreach($request->tagIds as $tagId) $account->gateway()->user_tag->tagUsers($request->openIds, $tagId);

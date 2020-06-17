@@ -56,12 +56,23 @@
 
             <div v-if="['media_id', 'view_limited'].includes(btn.type)">
               <el-form-item label='素材id' prop='media_id'>
-                <el-input :readonly="readonly" v-model="btn.media_id" placeholder='media_id'/>
+                <div style="display:flex;">
+                  <el-input :readonly="readonly" v-model="btn.media_id" placeholder='media_id'/>
+                  <el-button @click="materialDialogVisible = true">选择</el-button>
+                </div>
               </el-form-item>
             </div>
           </div>
         </el-form>
       </div>
+
+      <el-dialog
+        title="提示"
+        :visible.sync="materialDialogVisible"
+        width="60%"
+      >
+        <material @click="toggleSelectedMaterial"></material>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -70,10 +81,11 @@
 import _ from 'lodash'
 import DynamicTypeInput from './DynamicTypeInput'
 import { allowButtons } from './DynamicTypeInput'
+import Material from "../account/material";
 
 export default {
   name: 'EventAssign',
-  components: { DynamicTypeInput },
+  components: {Material, DynamicTypeInput },
   props: {
     value: {
       type: Object,
@@ -86,7 +98,8 @@ export default {
   },
   data() {
     return {
-      btn: {}
+      btn: {},
+      materialDialogVisible: false
     }
   },
   computed: {
@@ -144,6 +157,10 @@ export default {
       this.$refs.form.validate(bool => (valid = bool))
 
       return valid
+    },
+    toggleSelectedMaterial(type, item) {
+      this.$set(this.btn, 'media_id', item.media_id)
+      this.materialDialogVisible = false
     }
   }
 }
@@ -167,8 +184,25 @@ export default {
     display: flex;
     flex-direction: column;
     margin: 0 20px;
+    height: 100%;
     .head, .content {
       padding: 12px 0;
+    }
+    .content {
+      height: 100%;
+      overflow: auto;
+      &::-webkit-scrollbar {
+        width: 3px;     /*高宽分别对应横竖滚动条的尺寸*/
+        height: 1px;
+      }
+      &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+        background: #c2d7f0;
+      }
+      &::-webkit-scrollbar-track {
+        border-radius: 10px;
+      }
     }
     .head {
       display: flex;
