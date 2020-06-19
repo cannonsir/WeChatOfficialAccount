@@ -93,8 +93,6 @@
 
               <el-button slot="reference" icon="el-icon-thumb" size="small" type="text">标签管理</el-button>
             </el-popover>
-
-            <el-button icon="el-icon-chat-round" size="small" type="text">发送消息</el-button>
           </template>
         </avue-crud>
       </el-main>

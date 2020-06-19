@@ -19,6 +19,9 @@ $router->group([
         $router->apiResource('accounts', 'AccountController');
 
         $router->prefix('accounts/{wx_account}')->group(function ($router) {
+            $router->delete('records', 'AccountController@cleanApiInvokeRecord');
+            $router->get('wx_ip', 'AccountController@fetchWxIp');
+
             $router->get('users', 'UserController@index');
             $router->put('users', 'UserController@sync');
 

@@ -21,4 +21,20 @@ class AccountController extends Controller
     {
         $this->model = new Account;
     }
+
+    /*
+     * 清理接口调用次数
+     */
+    public function cleanApiInvokeRecord(Request $request, Account $account)
+    {
+        return $account->gateway()->base->clearQuota();
+    }
+
+    /*
+     * 获取微信服务器 IP (或IP段)
+     */
+    public function fetchWxIp(Request $request, Account $account)
+    {
+        return $account->gateway()->base->getValidIps();
+    }
 }

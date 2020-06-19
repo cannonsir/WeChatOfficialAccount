@@ -6,13 +6,17 @@
 
     <el-divider content-position="left">其他操作</el-divider>
 
-    <el-button type="danger" @click="handleDelete" style="margin-bottom: 20px">删除</el-button>
+    <div style="margin-bottom: 20px">
+      <el-button type="danger" @click="handleDelete">删除此公众号</el-button>
+      <el-button @click="handleCleanApiRecent">清理微信接口调用次数</el-button>
+      <el-button @click="handleFetchWxIp">获取微信服务器IP</el-button>
+    </div>
   </div>
 </template>
 
 <script>
 import AccountSheet from '../components/AccountSheet'
-import { update, destroy } from '../../api/account'
+import { update, destroy, cleanApiInvokeRecord, fetchWxIp } from '../../api/account'
 
 export default {
   name: 'Setting',
@@ -45,6 +49,45 @@ export default {
           }
         }
       })
+    },
+    async handleCleanApiRecent() {
+      const loading = this.$loading({ text: '清理中...' })
+
+      try {
+        await cleanApiInvokeRecord(this.account.id)
+        this.$message.success('清理成功')
+      } catch (e) {
+        console.error(e)
+        this.$message.error('清理失败')
+      } finally {
+        loading.close()
+      }
+    },
+    async handleFetchWxIp() {
+      const loading = this.$loading({ text: '获取中...' })
+
+      try {
+        const ip = await fetchWxIp(this.account.id)
+
+        const h = this.$createElement;
+
+        const ips = (ip.ip_list || []).map(val => h('p', val))
+
+        this.$msgbox({
+          title: '微信服务器IP地址列表',
+          message: h('div', {
+            style: {
+              maxHeight: '500px',
+              overflow: 'auto'
+            }
+          }, ips),
+          confirmButtonText: '确定',
+        })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        loading.close()
+      }
     }
   }
 }
